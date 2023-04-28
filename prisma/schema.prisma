@@ -1,0 +1,23 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["clientExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// One to many relationship between Company and User
+model Company {
+  id    String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name  String
+  users User[]
+}
+
+model User {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String  @default(dbgenerated("(current_setting('app.current_company_id'::text))::uuid")) @db.Uuid
+  email     String  @unique
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
